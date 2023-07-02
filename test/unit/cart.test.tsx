@@ -12,6 +12,7 @@ import { initStore } from '../../src/client/store';
 import { CartApi, ExampleApi } from '../../src/client/api';
 import { localStorageMock, productMock } from './mock';
 import { Application } from '../../src/client/Application';
+import { Cart } from '../../src/client/pages/Cart';
 
 const basename = '/';
 const keyLS = 'example-store-cart';
@@ -67,18 +68,37 @@ describe('Корзина', () => {
         });
     });
 
-    it('В шапке должна отображаться количество неповторяющихся товаров', async () => {
+    it('Для каждого товара отображаются Название, Цена, Количество, Стоимость и Общая стоимость', async () => {
         const app = render(
             <BrowserRouter>
                 <Provider store={store}>
-                    <Application />
+                    <Cart />
                 </Provider>
             </BrowserRouter>
         );
 
         await waitFor(() => {
-            const cart = app.findByText(`Cart (${Object.keys(localStorageMock).length})`)
-            expect(cart).toBeDefined();
+            const names = app.container.getElementsByClassName('Cart-Name');
+            const prices = app.container.getElementsByClassName('Cart-Price');
+            const counts = app.container.getElementsByClassName('Cart-Count');
+            const totals = app.container.getElementsByClassName('Cart-Total');
+
+            expect(names).toHaveLength(Object.keys(localStorageMock).length);
+            expect(prices).toHaveLength(Object.keys(localStorageMock).length);
+            expect(counts).toHaveLength(Object.keys(localStorageMock).length);
+            expect(totals).toHaveLength(Object.keys(localStorageMock).length);
+
+            let total = 0;
+
+            Object.values(localStorageMock).forEach((item, index) => {
+                expect(prices[index].textContent).toBe(`$${item.price}`);
+                expect(counts[index].textContent).toBe(`${item.count}`);
+                total += parseInt(totals[index].textContent?.replace('$', '') as string);
+            });
+
+            expect(total).toBe(Object.values(localStorageMock).reduce((acc, cur) => {
+                return (cur.price as number) * (cur.count as number) + acc;
+            }, 0));
         });
     });
 });

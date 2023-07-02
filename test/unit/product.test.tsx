@@ -64,7 +64,7 @@ describe('Карточка товара', () => {
             const price = catalog.getByText(`$${productMock.price}`);
             const color = catalog.getByText(productMock.color);
             const material = catalog.getByText(productMock.material);
-            const button = catalog.getByText('Add to Cart');
+            const button = catalog.container.getElementsByClassName('btn-lg');
 
             expect(title).toBeDefined();
             expect(description).toBeDefined();
@@ -107,12 +107,14 @@ describe('Карточка товара', () => {
             const button = catalog.getByText('Add to Cart');
             button.click();
             let ls: localStorageInterface = JSON.parse(window.localStorage.getItem('example-store-cart') as string);
+            
+            const count = ls[0].count;
 
-            expect(ls[0].count).toBeGreaterThanOrEqual(1);
+            expect(ls[0].count).toBe(count);
 
             button.click();
             ls = JSON.parse(window.localStorage.getItem('example-store-cart') as string);
-            expect(ls[0].count).toBeGreaterThanOrEqual(1);
+            expect(ls[0].count).toBe(count + 1);
         });
     });
 });
