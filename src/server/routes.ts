@@ -5,6 +5,7 @@ import { CheckoutResponse } from '../common/types';
 import { ExampleStore } from './data';
 
 export function getBugId(req: express.Request) {
+    console.log(req.query.bug_id);
     return Number(req.query.bug_id) || 0;
 }
 
